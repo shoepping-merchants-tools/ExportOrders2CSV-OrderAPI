@@ -1,0 +1,11 @@
+ORDER;code;orderdate;shipmentdate;dlv-fname;dlv-lname;dlv-additionalinfo;dlv-street;dlv-housenum;dlv-city;dlv-postalcode;dlv-gender;dlv-addresstype;inv-fname;inv-additionalinfo;inv-lname;inv-street;inv-housenum;inv-city;inv-postalcode;inv-gender;totalbaseprice;merchantdiscount;merchantsubtotal;marketplacediscount;subtotal;deliverycost;totalprice;paymentmode;deliverymode;additionaldeliveryoption;deliveryconfiguration
+POS;order;sku;name;quantity;baseprice;totalprice;taxclass;warehouse
+ORDER;"z1p4-74rz-3708-l976-0jna";2020-01-23T10:11:20.557;2020-01-27T07:00:20.214;"Gast";"Bestellungzwei";;"Weintraubengasse";"22";"Wien";"1020";"MALE";"address";"Gast";"Bestellungzwei";;"Weintraubengasse";"22";"Wien";"1020";"MALE";29.99;0;29.99;0;29.99;3.3;33.29;"sofort_banking";"E+2";"E2_1";"Post-Paketlogistik-E+2"
+POS;"z1p4-74rz-3708-l976-0jna";"skumed4";"Drug 4";1";29.99";29.99";"at-vat-full";"samplemerchant2-default-warehouse"
+ORDER;"1y2m-k5f6-ktg4-bbop-r279";2020-01-23T10:06:50.742;2020-01-27T07:00:38.031;"Kiam";"Lasttest-Eins";;"Weintraubengasse";"22";"Wien";"1020";"FEMALE";"address";"Kiam";"Lasttest-Eins";;"Weintraubengasse";"22";"Wien";"1020";"FEMALE";29.99;0;29.99;0;29.99;3.3;33.29;"sofort_banking";"E+2";"E2_1";"Post-Paketlogistik-E+2"
+POS;"1y2m-k5f6-ktg4-bbop-r279";"skumed4";"Drug 4";1";29.99";29.99";"at-vat-full";"samplemerchant2-default-warehouse"
+ORDER;"ekwr-p35w-ex1x-c4i3-2xhg";2020-01-13T20:08:24.277;2020-01-14T07:00:34.953;"Gast";"Sso-Sieben";;"Weintraubengasse";"22";"Wien";"1020";"FEMALE";"address";"Gast";"Sso-Sieben";;"Weintraubengasse";"22";"Wien";"1020";"FEMALE";17.99;0;17.99;0;17.99;3.3;21.29;"mastercard";"E+2";"E2_1";"samplemerchant2-standard"
+POS;"ekwr-p35w-ex1x-c4i3-2xhg";"skumed1";"Drug 1";1";17.99";17.99";"at-vat-full";"samplemerchant2-default-warehouse"
+POS;"3tbd-m7pc-70rd-1nvk-p1aw";"PHARMA_Product_49ki127q41";"[Pharma] Product 49ki127q41";1";70.0";70.0";"at-vat-full";"samplemerchant2-default-warehouse"
+POS;"cg0o-d9ga-x6e4-9x64-0afx";"skumed3";"Drug 3";1";29.99";29.99";"at-vat-full";"samplemerchant2-default-warehouse"
+POS;"pp52-plbz-n4ot-q425-fafz";"skumed4";"Drug 4";1";29.99";29.99";"at-vat-full";"samplemerchant2-default-warehouse"
