@@ -9,6 +9,8 @@ source("settings.R")
 library(httr)
 library(jsonlite)
 library(xml2)
+library(digest)
+library(Rmpfr)
 
 
 getconfirmed <- "/ws/v1/orders?status=confirmed"
@@ -29,9 +31,7 @@ fc<-file(filename, open = "w+")
 print(paste("Using filename",filename))
 
 #Header-Lines can be commented out if not needed
-writeLines("ORDER;code;orderdate;shipmentdate;dlv-fname;dlv-lname;dlv-additionalinfo;dlv-street;dlv-housenum;dlv-city;dlv-postalcode;dlv-gender;dlv-addresstype;inv-fname;inv-additionalinfo;inv-lname;inv-street;inv-housenum;inv-city;inv-postalcode;inv-gender;totalbaseprice;merchantdiscount;merchantsubtotal;marketplacediscount;subtotal;deliverycost;totalprice;paymentmode;deliverymode;additionaldeliveryoption;deliveryconfiguration",con=fc,sep = "\n")
-writeLines("POS;order;sku;name;quantity;baseprice;totalprice;taxclass;warehouse",con=fc,sep = "\n")
-
+writeLines("num;email;order;sku;name;quantity;baseprice;totalprice;taxclass;warehouse;orderdate;shipmentdate;dlv-fname;dlv-lname;dlv-additionalinfo;dlv-street;dlv-housenum;dlv-city;dlv-postalcode;dlv-gender;dlv-addresstype;inv-fname;inv-additionalinfo;inv-lname;inv-street;inv-housenum;inv-city;inv-postalcode;inv-gender;totalbaseprice;merchantdiscount;merchantsubtotal;marketplacediscount;subtotal;deliverycost;totalprice;paymentmode;deliverymode;additionaldeliveryoption;deliveryconfiguration",con=fc,sep = "\n")
 
 moredatathere <- TRUE
 toconfirm <- vector()
@@ -39,7 +39,6 @@ toconfirm <- vector()
 #if we get a paginated result we need to fetch data more often
 while( moredatathere )
 {
-
   print("Fetching data from Shöpping")
   rsp <- GET(call,add_headers(Authorization = auth_header))
   result <- read_xml(content(rsp,"text"))
@@ -47,7 +46,6 @@ while( moredatathere )
 
  if ( length(orders) )
   {
-
     print(paste("Saving data into file"))
     for (i in 1:length(orders) ) {
       #print(paste("processing ",xml_text(xml_find_first(orders[i],"ns1:code"))))
@@ -58,11 +56,25 @@ while( moredatathere )
         if (is.na(ddoornumber)) { ddoornumber<-"" } else {ddoornumber<-paste0("/",ddoornumber)}
         idoornumber <- xml_text(xml_find_first(xml_find_first(orders[i],"ns1:paymentAddress"),"ns1:doornumber"))
         if (is.na(idoornumber)) { idoornumber<-"" } else {idoornumber<-paste0("/",idoornumber)}
+        num <- formatMpfr(mpfr(digest(xml_text(xml_find_first(orders[i],"ns1:code"))), base=16), drop0trailing=TRUE)
 
-        #copy all fields into one csv line
-        line <- paste(
-        "ORDER",";",
-        "\"",xml_text(xml_find_first(orders[i],"ns1:code") ) ,"\";",
+
+        toconfirm[ length( toconfirm ) + 1 ] <-  xml_text(xml_find_first(orders[i],"ns1:code" ) )
+
+        #process products of an order
+        products <-  xml_children(xml_find_first(orders[i],"ns1:entries"))
+        for (j in 1:length(products)) {
+        pp <- paste(
+            num,";",
+            "shoepping",num,"@shoepping.at"  ,";",
+            xml_text(xml_find_first(orders[i],"ns1:code") )   ,";",
+            "\"",xml_text(xml_find_first(products[j],"ns1:sku") ),"\";",
+            "\"",xml_text(xml_find_first(products[j],"ns1:name") ),"\";",
+            xml_text(xml_find_first(products[j],"ns1:quantity") ),";",
+            xml_text(xml_find_first(products[j],"ns1:basePrice") ),";",
+            xml_text(xml_find_first(products[j],"ns1:totalPrice") ),";",
+            "\"",xml_text(xml_find_first(products[j],"ns1:taxClass") ),"\";",
+            "\"",xml_text(xml_find_first(products[j],"ns1:warehouse") ),"\";",
         xml_text(xml_find_first(orders[i],"ns1:date") ) ,";",
         xml_text(xml_find_first(orders[i],"ns1:shipmentDate") ) ,";",
         "\"",xml_text(xml_find_first(xml_find_first(orders[i],"ns1:deliveryAddress"),"ns1:firstName")),"\";",
@@ -93,24 +105,6 @@ while( moredatathere )
         "\"",xml_text(xml_find_first(orders[i],"ns1:deliveryMode") ) ,"\";",
         "\"",xml_text(xml_find_first(orders[i],"ns1:additionalDeliveryOption") ) ,"\";",
         "\"",xml_text(xml_find_first(orders[i],"ns1:deliveryConfiguration") ) ,"\"",
-        sep="" )
-        line <- gsub("\"NA\"", "", line)
-        writeLines(line,con=fc,sep = "\n")
-        toconfirm[ length( toconfirm ) + 1 ] <-  xml_text(xml_find_first(orders[i],"ns1:code" ) )
-
-        #process products of an order
-        products <-  xml_children(xml_find_first(orders[i],"ns1:entries"))
-        for (j in 1:length(products)) {
-        pp <- paste(
-            "POS",";",
-            "\"",xml_text(xml_find_first(orders[i],"ns1:code") ) ,"\";",
-            "\"",xml_text(xml_find_first(products[j],"ns1:sku") ),"\";",
-            "\"",xml_text(xml_find_first(products[j],"ns1:name") ),"\";",
-            xml_text(xml_find_first(products[j],"ns1:quantity") ),";",
-            xml_text(xml_find_first(products[j],"ns1:basePrice") ),";",
-            xml_text(xml_find_first(products[j],"ns1:totalPrice") ),";",
-            "\"",xml_text(xml_find_first(products[j],"ns1:taxClass") ),"\";",
-            "\"",xml_text(xml_find_first(products[j],"ns1:warehouse") ),"\"",
             sep="" )
         writeLines(pp,con=fc,sep = "\n")
         }
@@ -122,6 +116,7 @@ while( moredatathere )
       }
     }
   }
+
 
   #Look if we can find pagination and build a new url if yes otherwise we are done
   nextpage <- xml_find_first(xml_find_all(result,"ns1:pagination"),"ns1:next")
